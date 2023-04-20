@@ -12,6 +12,8 @@ plugins {
 // A cordaProvided declaration is required for anything that we use that the Corda API provides.
 // This is required to allow us to build CorDapp modules as OSGi bundles that CPI and CPB files are built on.
 dependencies {
+//    implementation 'junit:junit:4.13.1'
+
     // From other subprojects:
     cordapp project(':contracts')
 
@@ -44,10 +46,12 @@ dependencies {
     // Todo:  these are commented out as the simulator UTXO work has not been merged into Gecko yet.
 //    testImplementation "net.corda:corda-simulator-api:$simulatorVersion"
 //    testRuntimeOnly "net.corda:corda-simulator-runtime:$simulatorVersion"
+    cordaProvided("net.corda:corda-simulator-api:$simulatorVersion")
+    cordaProvided("net.corda:corda-simulator-runtime:$simulatorVersion")
 
     // 3rd party libraries
     // Required
-    testImplementation "org.slf4j:slf4j-simple:2.0.0"
+    testImplementation 'org.slf4j:slf4j-simple:2.0.5'
     testImplementation "org.junit.jupiter:junit-jupiter:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 

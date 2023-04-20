@@ -7,6 +7,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'csde'
+    id 'net.corda.plugins.cordapp-cpb2'
 }
 
 allprojects {
@@ -46,6 +47,40 @@ allprojects {
         // All dependencies are held in Maven Central
         mavenCentral()
         mavenLocal()
+/*
+Required by:
+    project : > net.corda:corda-simulator-api:5.0.0.0-Gecko1.0 > net.corda:corda-simulator-runtime:5.0.0.0-Gecko1.0 > net.corda:corda-crypto-serialization-impl:5.0.0.0-Gecko1.0 > net.corda:corda-cipher-suite:5.0.0.0-Gecko1.0
+    project : > net.corda:corda-simulator-api:5.0.0.0-Gecko1.0 > net.corda:corda-simulator-runtime:5.0.0.0-Gecko1.0 > net.corda:corda-crypto-serialization-impl:5.0.0.0-Gecko1.0 > net.corda:corda-crypto-core:5.0.0.0-Gecko1.0
+
+use to download from
+
+ https://software.r3.com/artifactory/corda-os-maven/net/corda/corda-crypto-utils/5.0.0.0-Gecko1.0/corda-crypto-utils-5.0.0.0-Gecko1.0.pom, took 1 s 25 ms (2.74 kB)
+ */
+        maven{
+            url ="$artifactoryContextUrl/"
+        }
+
+        maven {
+            url = "$artifactoryContextUrl/ui/native/corda-os-maven"
+            credentials {
+                username = findProperty('cordaArtifactoryUsername') ?: System.getenv('CORDA_ARTIFACTORY_USERNAME')
+                password = findProperty('cordaArtifactoryPassword') ?: System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+            }
+        }
+
+        maven {
+            url = "$artifactoryContextUrl/corda-dependencies"
+        }
+        maven {
+            url = "$artifactoryContextUrl/corda-os-maven"
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = findProperty('cordaArtifactoryUsername') ?: System.getenv('CORDA_ARTIFACTORY_USERNAME')
+                password =  findProperty('cordaArtifactoryPassword') ?: System.getenv('CORDA_ARTIFACTORY_PASSWORD')
+            }
+        }
     }
 
     tasks.withType(Test).configureEach {
@@ -53,6 +88,23 @@ allprojects {
     }
 
 }
+
+//dependencies {
+//    cordaProvided 'org.jetbrains.kotlin:kotlin-osgi-bundle'
+//
+//    // Declare a "platform" so that we use the correct set of dependency versions for the version of the
+//    // Corda API specified.
+//    cordaProvided platform("net.corda:corda-api:$cordaApiVersion")
+//
+////    cordaProvided ("net.corda:corda-crypto-serialization-impl:$cordaApiVersion")
+//
+//    // Dependencies Required By Test Tooling
+////    testImplementation "net.corda:corda-simulator-api:$simulatorVersion"
+////    testRuntimeOnly "net.corda:corda-simulator-runtime:$simulatorVersion"
+//
+//    cordaProvided("net.corda:corda-simulator-api:$simulatorVersion")
+//    cordaProvided("net.corda:corda-simulator-runtime:$simulatorVersion")
+//}
 
 publishing {
     publications {
