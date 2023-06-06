@@ -39,6 +39,12 @@ dependencies {
     // The CorDapp uses the slf4j logging framework. Corda-API provides this so we need a 'cordaProvided' declaration.
     cordaProvided 'org.slf4j:slf4j-api'
 
+    // This are shared so should be here.
+    // Dependencies Required By Test Tooling
+    // Todo:  these are commented out as the simulator UTXO work has not been merged into Gecko yet.
+//    testImplementation "net.corda:corda-simulator-api:$simulatorVersion"
+//    testRuntimeOnly "net.corda:corda-simulator-runtime:$simulatorVersion"
+
     // 3rd party libraries
     // Required
     testImplementation "org.slf4j:slf4j-simple:2.0.0"
@@ -67,7 +73,7 @@ cordapp {
     // The cordapp section contains either a workflow or contract subsection depending on the type of component.
     // Declares the type and metadata of the CPK (this CPB has one CPK).
     contract {
-        name "Apples utxo example contract"
+        name "ContractsModuleNameHere"
         versionId 1
         vendor "VendorNameHere"
     }
