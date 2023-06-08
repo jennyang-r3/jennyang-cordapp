@@ -68,7 +68,7 @@ class CreateAndIssueAppleStampFlow: ClientStartableFlow {
             .setNotary(notaryInfo.name)
             .addOutputState(newStamp)
             .addCommand(AppleCommands.Issue())
-            .addSignatories(listOf(issuer, holder))
+            .addSignatories(setOf(issuer, holder))
             .setTimeWindowUntil(Instant.now().plus(1, ChronoUnit.DAYS))
             .toSignedTransaction()
 
