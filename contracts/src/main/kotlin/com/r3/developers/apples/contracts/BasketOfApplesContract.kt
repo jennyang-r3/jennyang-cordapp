@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import java.lang.ProcessHandle.Info
 
 class BasketOfApplesContract: Contract {
-    val privateLog = LoggerFactory.getLogger(BasketOfApplesContract::class.java)
+//    val privateLog = LoggerFactory.getLogger(BasketOfApplesContract::class.java)
     override fun verify(transaction: UtxoLedgerTransaction) {
         when (val command = transaction.commands.first()) {
             is AppleCommands.PackBasket -> {
@@ -29,13 +29,17 @@ class BasketOfApplesContract: Contract {
                 }
                 val appleStampInputs = transaction.getInputStates(AppleStamp::class.java)
                 val basketOfApplesInputs = transaction.getInputStates(BasketOfApples::class.java)
-                privateLog.info("before output")
-                privateLog.info("after output")
+
+                val output = transaction.getOutputStates(BasketOfApples::class.java).first()
+
                 require(appleStampInputs.isNotEmpty() && basketOfApplesInputs.isNotEmpty()) {
                     "This transaction should have exactly one AppleStamp and one BasketOfApples input state"
                 }
                 require(appleStampInputs.single().issuer == basketOfApplesInputs.single().farm) {
                     "The issuer of the AppleStamp should be the producing farm of BasketOfApples"
+                }
+                require(output.owner == appleStampInputs.single().holder) {
+                    "The owner of basket should be the owner of apple stamp"
                 }
                 require(basketOfApplesInputs.single().weight > 0) {
                     "The weight of the basket of apples must be greater than zero"
