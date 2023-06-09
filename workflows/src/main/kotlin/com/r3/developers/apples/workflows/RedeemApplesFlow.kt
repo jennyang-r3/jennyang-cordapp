@@ -10,6 +10,7 @@ import net.corda.v5.application.flows.InitiatingFlow
 import net.corda.v5.application.marshalling.JsonMarshallingService
 import net.corda.v5.application.membership.MemberLookup
 import net.corda.v5.application.messaging.FlowMessaging
+import net.corda.v5.base.annotations.Suspendable
 import net.corda.v5.base.types.MemberX500Name
 import net.corda.v5.ledger.common.NotaryLookup
 import net.corda.v5.ledger.utxo.UtxoLedgerService
@@ -39,6 +40,7 @@ class RedeemApplesFlow: ClientStartableFlow {
         val buyer: MemberX500Name,
         val stampId: UUID
     )
+    @Suspendable
     override fun call(requestBody: ClientRequestBody): String {
         val request = requestBody.getRequestBodyAs(jsonMarshallingService, RedeemAppleRequest::class.java)
         val buyerName = request.buyer
@@ -73,10 +75,17 @@ class RedeemApplesFlow: ClientStartableFlow {
 
         val session = flowMessaging.initiateFlow(buyerName)
 
-        return try {
-            utxoLedgerService.finalize(transaction, listOf(session)).toString()
+         try {
+            utxoLedgerService.finalize(transaction, listOf(session))
         } catch (e: Exception) {
             "Flow failed, message: ${e.message}"
         }
+
+        // search for latest unconsumed basket state, look for the owner of the state, search owner in the network by owner's public key, return owners name
+        val ownershipChanged = utxoLedgerService.findUnconsumedStatesByType(BasketOfApples::class.java)
+            .firstOrNull { stateAndRef -> stateAndRef.state.contractState.owner == buyer }
+            ?: throw IllegalArgumentException("There are no eligible baskets of apples")
+        val newOwner = memberLookup.lookup(ownershipChanged.state.contractState.owner)
+        return newOwner?.name.toString()
     }
 }

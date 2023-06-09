@@ -4,8 +4,11 @@ import com.r3.developers.apples.states.AppleStamp
 import com.r3.developers.apples.states.BasketOfApples
 import net.corda.v5.ledger.utxo.Contract
 import net.corda.v5.ledger.utxo.transaction.UtxoLedgerTransaction
+import org.slf4j.LoggerFactory
+import java.lang.ProcessHandle.Info
 
 class BasketOfApplesContract: Contract {
+    val privateLog = LoggerFactory.getLogger(BasketOfApplesContract::class.java)
     override fun verify(transaction: UtxoLedgerTransaction) {
         when (val command = transaction.commands.first()) {
             is AppleCommands.PackBasket -> {
@@ -21,14 +24,13 @@ class BasketOfApplesContract: Contract {
                 }
             }
             is AppleCommands.Redeem -> {
-
+                require(transaction.inputContractStates.size == 2) {
+                    "This transaction should consume two states"
+                }
                 val appleStampInputs = transaction.getInputStates(AppleStamp::class.java)
                 val basketOfApplesInputs = transaction.getInputStates(BasketOfApples::class.java)
-
-                val output = transaction.getOutputStates(AppleStamp::class.java).first()
-                require(transaction.outputContractStates.size == 2) {
-                    "This transaction should consumes two states"
-                }
+                privateLog.info("before output")
+                privateLog.info("after output")
                 require(appleStampInputs.isNotEmpty() && basketOfApplesInputs.isNotEmpty()) {
                     "This transaction should have exactly one AppleStamp and one BasketOfApples input state"
                 }
